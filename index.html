@@ -1,13 +1,1450 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Làm Chủ Claude AI — Từ Người Dùng Thường Đến Chuyên Nghiệp Trong 90 Ngày</title>
+<meta name="description" content="Ebook thực chiến duy nhất giúp bạn biến Claude thành hệ thống làm việc tự động. 5 chương, 20+ ví dụ thực tế. Chỉ 79,000đ.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+<!-- ============================================================
+  CONFIG — THAY CÁC GIÁ TRỊ NÀY TRƯỚC KHI PUBLISH
+  ============================================================ -->
+<script>
+const CONFIG = {
+  // ── Thông tin ngân hàng ──────────────────────────────────
+  bankName:       'Vietcombank',
+  bankCode:       'VCB',          // Mã ngân hàng cho VietQR
+  accountNumber:  '1234567890',   // ← THAY SỐ TÀI KHOẢN THẬT
+  accountName:    'NGUYEN VAN A', // ← THAY TÊN CHỦ TÀI KHOẢN
+  amount:         79000,
+  // ── EmailJS (đăng ký tại emailjs.com) ────────────────────
+  emailjs: {
+    serviceId:  'YOUR_SERVICE_ID',   // ← THAY
+    templateId: 'YOUR_TEMPLATE_ID',  // ← THAY
+    publicKey:  'YOUR_PUBLIC_KEY',   // ← THAY
+  },
+  // ── Link download ebook ──────────────────────────────────
+  // ebookUrl KHÔNG dùng trực tiếp trên trang.
+  // Đặt link PDF vào EmailJS template variable {{download_url}}
+  // để ebook chỉ giao qua email sau khi xác nhận thanh toán.
+  ebookUrl: '', // Để trống — link PDF đặt trong EmailJS template
+  // ── Thời gian khuyến mãi (giờ tính từ khi tải trang) ─────
+  promoHours: 2,
+  // ── Test mode: thêm ?testmode=true vào URL để test ───────
+  testMode: new URLSearchParams(location.search).get('testmode') === 'true',
+};
+</script>
+
+<style>
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --navy:       #0f1b2d;
+  --navy-mid:   #1a2e4a;
+  --navy-light: #243b57;
+  --gold:       #e8a623;
+  --gold-light: #f5c842;
+  --gold-pale:  #fdf3d8;
+  --cream:      #faf8f3;
+  --white:      #ffffff;
+  --text:       #2d3748;
+  --muted:      #718096;
+  --border:     #e2e8f0;
+  --green:      #059669;
+  --red:        #dc2626;
+  --teal:       #0d9488;
+  --purple:     #7c3aed;
+  --r:          16px;
+  --shadow:     0 4px 24px rgba(15,27,45,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.75;font-size:17px;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+
+/* ── Typography ── */
+h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.15;color:var(--navy)}
+h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900}
+h2{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700}
+h3{font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:700}
+p{margin-bottom:1rem}
+strong{font-weight:600;color:var(--navy)}
+
+/* ── Utility ── */
+.gold{color:var(--gold)}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
+.container-sm{max-width:720px;margin:0 auto;padding:0 24px}
+.section{padding:96px 0}
+.section-alt{background:var(--white)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.divider{height:1px;background:var(--border);margin:48px 0}
+.tag{display:inline-block;background:rgba(232,166,35,.15);border:1px solid rgba(232,166,35,.35);color:#b45309;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:20px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 36px;border-radius:100px;font-size:16px;font-weight:600;transition:.25s;border:none;outline:none}
+.btn-gold{background:var(--gold);color:var(--navy);box-shadow:0 6px 32px rgba(232,166,35,.38)}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 10px 40px rgba(232,166,35,.45)}
+.btn-gold:active{transform:translateY(0)}
+.btn-outline{background:transparent;color:var(--navy);border:2px solid var(--navy)}
+.btn-outline:hover{background:var(--navy);color:var(--white)}
+.btn-lg{padding:20px 48px;font-size:18px}
+.btn-full{width:100%;border-radius:var(--r)}
+.btn-ghost{background:rgba(255,255,255,.1);color:var(--white);border:1px solid rgba(255,255,255,.25)}
+.btn-ghost:hover{background:rgba(255,255,255,.2)}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes tick{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.fade-up{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* ============================================================
+   STICKY NAV BAR
+   ============================================================ */
+.topbar{position:sticky;top:0;z-index:999;background:var(--navy);padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--white)}
+.topbar-logo span{color:var(--gold)}
+.topbar-offer{font-size:13px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:8px}
+.topbar-countdown{display:flex;gap:4px;align-items:center}
+.topbar-countdown .tc-block{background:rgba(232,166,35,.2);border:1px solid rgba(232,166,35,.35);color:var(--gold);font-size:14px;font-weight:700;padding:2px 8px;border-radius:6px;font-variant-numeric:tabular-nums;animation:tick 1s ease infinite}
+.topbar-countdown .tc-sep{color:var(--gold);font-weight:700}
+.topbar-cta{flex-shrink:0}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{background:var(--navy);padding:100px 0 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-120px;right:-120px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(232,166,35,.15) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-80px;left:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.1) 0%,transparent 70%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr 420px;gap:64px;align-items:center;position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(232,166,35,.12);border:1px solid rgba(232,166,35,.3);color:var(--gold-light);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:28px}
+.hero h1{color:var(--white);margin-bottom:12px}
+.hero h1 em{color:var(--gold);font-style:normal;display:block}
+.hero-sub{font-size:18px;color:rgba(255,255,255,.65);font-weight:300;max-width:480px;margin-bottom:36px;line-height:1.7}
+.hero-cta-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:40px}
+.hero-price-note{font-size:14px;color:rgba(255,255,255,.5)}
+.hero-price-note s{color:rgba(255,255,255,.3)}
+.hero-social-proof{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:32px;border-top:1px solid rgba(255,255,255,.1)}
+.sp-item{display:flex;align-items:center;gap:8px;font-size:14px;color:rgba(255,255,255,.65)}
+.sp-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold)}
+.sp-stars{color:var(--gold);font-size:16px;letter-spacing:2px}
+
+/* ── Ebook Mockup ── */
+.ebook-mockup{position:relative;animation:fadeUp .8s .2s both}
+.mock-card{background:linear-gradient(145deg,#1a2e4a 0%,#0f1b2d 100%);border-radius:20px;padding:40px 36px;border:1px solid rgba(232,166,35,.2);box-shadow:0 24px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05)}
+.mock-badge{display:inline-block;background:rgba(232,166,35,.15);border:1px solid rgba(232,166,35,.3);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:24px}
+.mock-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--white);line-height:1.2;margin-bottom:6px}
+.mock-title span{color:var(--gold);display:block}
+.mock-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.mock-chapters{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+.mock-ch{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.7)}
+.mock-ch-num{width:24px;height:24px;border-radius:50%;background:rgba(232,166,35,.15);border:1px solid rgba(232,166,35,.3);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mock-footer{display:flex;align-items:center;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(255,255,255,.08)}
+.mock-price-box{}
+.mock-price-old{font-size:13px;color:rgba(255,255,255,.35);text-decoration:line-through}
+.mock-price-new{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--gold)}
+.mock-pages{font-size:11px;color:rgba(255,255,255,.35);text-align:right}
+
+/* ── Hero Countdown ── */
+.hero-countdown{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.hcd-label{font-size:12px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1.5px}
+.hcd-blocks{display:flex;gap:6px}
+.hcd-block{text-align:center}
+.hcd-num{display:block;background:rgba(232,166,35,.15);border:1px solid rgba(232,166,35,.25);color:var(--gold);font-size:22px;font-weight:700;padding:8px 12px;border-radius:8px;min-width:48px;font-variant-numeric:tabular-nums;animation:tick 1s ease infinite}
+.hcd-unit{display:block;font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.hcd-sep{color:rgba(232,166,35,.5);font-size:20px;font-weight:700;line-height:1;margin-top:4px}
+
+/* ============================================================
+   PROBLEM SECTION
+   ============================================================ */
+.problem-intro{text-align:center;max-width:620px;margin:0 auto 56px}
+.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-bottom:56px}
+.pain-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;position:relative;overflow:hidden;transition:.3s}
+.pain-card:hover{border-color:rgba(220,38,38,.25);transform:translateY(-3px);box-shadow:var(--shadow)}
+.pain-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ef4444,#f97316)}
+.pain-icon{font-size:28px;margin-bottom:14px}
+.pain-title{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.pain-desc{font-size:14px;color:var(--muted);line-height:1.6;margin:0}
+.problem-story{background:var(--navy);border-radius:20px;padding:48px 52px;text-align:center;position:relative;overflow:hidden}
+.problem-story::before{content:'"';font-family:'Playfair Display',serif;font-size:200px;color:rgba(232,166,35,.06);position:absolute;top:-30px;left:20px;line-height:1;pointer-events:none}
+.problem-story-text{font-family:'Playfair Display',serif;font-size:22px;color:var(--white);line-height:1.6;position:relative;z-index:1;max-width:600px;margin:0 auto 20px}
+.problem-story-text em{color:var(--gold);font-style:normal}
+.problem-story-sub{font-size:15px;color:rgba(255,255,255,.55);position:relative;z-index:1}
+
+/* ============================================================
+   SOLUTION / CHAPTERS
+   ============================================================ */
+.solution-intro{text-align:center;max-width:600px;margin:0 auto 56px}
+.accordion{display:flex;flex-direction:column;gap:12px}
+.acc-item{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:.3s}
+.acc-item.open{border-color:rgba(232,166,35,.4);box-shadow:0 4px 24px rgba(232,166,35,.1)}
+.acc-header{display:flex;align-items:center;gap:16px;padding:22px 24px;cursor:pointer;user-select:none}
+.acc-num{width:40px;height:40px;border-radius:10px;background:var(--navy);color:var(--gold);font-family:'Playfair Display',serif;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.3s}
+.acc-item.open .acc-num{background:var(--gold);color:var(--navy)}
+.acc-title-wrap{flex:1}
+.acc-title{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.acc-subtitle{font-size:13px;color:var(--muted)}
+.acc-arrow{font-size:20px;color:var(--muted);transition:.3s;flex-shrink:0}
+.acc-item.open .acc-arrow{transform:rotate(180deg);color:var(--gold)}
+.acc-body{display:none;padding:0 24px 24px;padding-left:80px}
+.acc-item.open .acc-body{display:block}
+.acc-desc{font-size:15px;color:var(--text);line-height:1.7;margin-bottom:16px}
+.acc-outcome{background:var(--gold-pale);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 16px;font-size:14px;color:#92400e}
+.acc-outcome strong{color:#78350f}
+
+/* ============================================================
+   WHAT'S INSIDE
+   ============================================================ */
+.inside-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.inside-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+.inside-item{display:flex;align-items:flex-start;gap:12px;font-size:16px;color:var(--text);line-height:1.5}
+.inside-check{width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:44px;font-weight:900;color:var(--gold);line-height:1;display:block;margin-bottom:6px}
+.stat-label{font-size:13px;color:var(--muted)}
+
+/* ============================================================
+   FOR WHO
+   ============================================================ */
+.forwho-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:820px;margin:0 auto}
+.forwho-card{border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.forwho-header{padding:18px 22px;font-size:14px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.fwh-yes .forwho-header{background:#ecfdf5;color:var(--green)}
+.fwh-no .forwho-header{background:#fef2f2;color:var(--red)}
+.forwho-body{background:var(--white);padding:20px 22px;display:flex;flex-direction:column;gap:12px}
+.forwho-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text);line-height:1.5}
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.testi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;position:relative}
+.testi-stars{color:var(--gold);font-size:15px;letter-spacing:2px;margin-bottom:14px}
+.testi-text{font-size:15px;color:var(--text);line-height:1.7;font-style:italic;margin-bottom:18px}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--gold);font-family:'Playfair Display',serif;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.testi-name{font-size:14px;font-weight:600;color:var(--navy)}
+.testi-role{font-size:12px;color:var(--muted)}
+
+/* ============================================================
+   PRICING
+   ============================================================ */
+.pricing-wrap{display:flex;justify-content:center}
+.pricing-box{background:var(--navy);border-radius:24px;padding:52px 48px;max-width:580px;width:100%;position:relative;overflow:hidden;border:1px solid rgba(232,166,35,.2)}
+.pricing-box::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(232,166,35,.12) 0%,transparent 70%);pointer-events:none}
+.pricing-badge{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:28px}
+.pricing-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--white);margin-bottom:24px}
+.pricing-price-row{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.price-old{font-size:20px;color:rgba(255,255,255,.3);text-decoration:line-through}
+.price-new{font-family:'Playfair Display',serif;font-size:56px;font-weight:900;color:var(--gold);line-height:1}
+.price-unit{font-size:16px;color:rgba(255,255,255,.5);align-self:center}
+.pricing-save{font-size:13px;color:var(--gold);margin-bottom:28px;opacity:.8}
+.pricing-includes{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.pi-item{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.8)}
+.pi-check{color:var(--gold);font-size:16px;flex-shrink:0}
+.pricing-cta-wrap{margin-bottom:20px}
+.pricing-guarantee{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:10px;padding:14px 18px;font-size:13px;color:rgba(255,255,255,.6)}
+.pricing-guarantee .icon{font-size:20px;flex-shrink:0}
+.pricing-countdown{background:rgba(232,166,35,.1);border:1px solid rgba(232,166,35,.2);border-radius:12px;padding:16px 20px;margin-bottom:28px;text-align:center}
+.pc-label{font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.pc-blocks{display:flex;justify-content:center;gap:8px}
+.pc-block{text-align:center}
+.pc-num{display:block;background:rgba(232,166,35,.15);border:1px solid rgba(232,166,35,.3);color:var(--gold);font-size:28px;font-weight:700;padding:10px 14px;border-radius:8px;min-width:56px;font-variant-numeric:tabular-nums}
+.pc-unit{display:block;font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.pc-sep{color:rgba(232,166,35,.5);font-size:24px;font-weight:700;line-height:1;padding-top:10px}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq-list{display:flex;flex-direction:column;gap:12px;max-width:720px;margin:0 auto}
+.faq-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;cursor:pointer;font-size:15px;font-weight:600;color:var(--navy)}
+.faq-q .fa-arrow{font-size:18px;color:var(--muted);transition:.25s;flex-shrink:0}
+.faq-item.open .fa-arrow{transform:rotate(180deg);color:var(--gold)}
+.faq-a{display:none;padding:0 24px 20px;font-size:15px;color:var(--text);line-height:1.7}
+.faq-item.open .faq-a{display:block}
+
+/* ============================================================
+   FINAL CTA SECTION
+   ============================================================ */
+.final-cta{background:var(--navy);padding:96px 0;text-align:center;position:relative;overflow:hidden}
+.final-cta::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(232,166,35,.1) 0%,transparent 65%);pointer-events:none}
+.final-cta h2{color:var(--white);max-width:580px;margin:0 auto 20px}
+.final-cta h2 span{color:var(--gold)}
+.final-cta p{color:rgba(255,255,255,.6);max-width:480px;margin:0 auto 40px}
+.urgency-text{font-size:14px;color:rgba(255,255,255,.45);margin-top:16px}
+
+/* ============================================================
+   PAYMENT MODAL
+   ============================================================ */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,15,30,.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.3s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--cream);border-radius:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;transform:scale(.94) translateY(20px);transition:.3s}
+.modal-overlay.open .modal{transform:scale(1) translateY(0)}
+.modal-header{background:var(--navy);padding:28px 32px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white)}
+.modal-close{background:rgba(255,255,255,.1);border:none;color:var(--white);width:36px;height:36px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
+.modal-close:hover{background:rgba(255,255,255,.2)}
+.modal-body{padding:32px}
+.modal-steps{display:flex;gap:0;margin-bottom:32px}
+.ms-step{flex:1;text-align:center;position:relative}
+.ms-step:not(:last-child)::after{content:'';position:absolute;top:16px;left:60%;width:80%;height:2px;background:var(--border)}
+.ms-step.active::after,.ms-step.done::after{background:var(--gold)}
+.ms-circle{width:32px;height:32px;border-radius:50%;background:var(--border);color:var(--muted);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;transition:.3s;position:relative;z-index:1}
+.ms-step.active .ms-circle{background:var(--gold);color:var(--navy)}
+.ms-step.done .ms-circle{background:var(--green);color:var(--white)}
+.ms-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.ms-step.active .ms-label{color:var(--gold);font-weight:600}
+
+/* Step panels */
+.step-panel{display:none}
+.step-panel.active{display:block}
+
+/* Form styles */
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:14px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.form-label span{color:var(--red)}
+.form-input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--white);color:var(--navy);transition:.2s;outline:none}
+.form-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,166,35,.15)}
+.form-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+.form-error{font-size:12px;color:var(--red);margin-top:4px;display:none}
+.form-error.show{display:block}
+
+/* QR panel */
+.qr-wrap{text-align:center}
+.qr-order-id{background:var(--navy);color:var(--gold);font-family:'DM Sans',monospace;font-size:14px;font-weight:600;padding:10px 20px;border-radius:100px;display:inline-block;margin-bottom:20px}
+.qr-box{border:2px solid var(--border);border-radius:16px;padding:20px;display:inline-block;background:var(--white);margin-bottom:20px}
+#qrcode-container{width:200px;height:200px;margin:0 auto}
+#qrcode-container img,#qrcode-container canvas{width:200px!important;height:200px!important}
+.qr-bank-info{background:var(--navy);border-radius:12px;padding:16px 20px;margin-bottom:20px;text-align:left}
+.qr-bank-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.qr-bank-row:last-child{border-bottom:none}
+.qr-bank-label{font-size:12px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px}
+.qr-bank-value{font-size:14px;font-weight:600;color:var(--white)}
+.qr-bank-value.amount{color:var(--gold);font-family:'Playfair Display',serif;font-size:18px}
+.qr-timer{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:10px;padding:12px 16px;text-align:center;font-size:14px;color:#991b1b;margin-bottom:20px}
+.qr-timer strong{font-size:22px;font-variant-numeric:tabular-nums}
+.qr-note{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.qr-manual-btn{background:none;border:1.5px solid var(--border);border-radius:10px;padding:12px 20px;font-size:14px;color:var(--muted);width:100%;transition:.2s}
+.qr-manual-btn:hover{border-color:var(--navy);color:var(--navy)}
+
+/* Manual confirm */
+.manual-form{background:rgba(13,148,136,.06);border:1px solid rgba(13,148,136,.2);border-radius:12px;padding:20px;margin-top:16px;display:none}
+.manual-form.show{display:block}
+
+/* Success panel */
+.success-wrap{text-align:center;padding:20px 0}
+.success-icon{font-size:64px;margin-bottom:16px;animation:fadeUp .5s both}
+.success-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--navy);margin-bottom:8px}
+.success-title span{color:var(--gold)}
+.success-sub{font-size:15px;color:var(--muted);margin-bottom:32px;line-height:1.7}
+.download-box{background:var(--navy);border-radius:16px;padding:28px;margin-bottom:20px}
+.dl-title{font-size:14px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.dl-btn{display:flex;align-items:center;justify-content:center;gap:12px;background:var(--gold);color:var(--navy);font-size:16px;font-weight:700;padding:16px 32px;border-radius:100px;border:none;width:100%;transition:.25s;cursor:pointer}
+.dl-btn:hover{background:var(--gold-light);transform:translateY(-2px)}
+.dl-note{font-size:12px;color:rgba(255,255,255,.35);margin-top:12px}
+.email-check{background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.2);border-radius:10px;padding:12px 16px;font-size:13px;color:#065f46;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* Spinner */
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--white);border-radius:50%;animation:spin .8s linear infinite}
+
+/* Test mode watermark */
+.testmode-banner{position:fixed;top:0;left:0;right:0;background:var(--red);color:var(--white);text-align:center;font-size:13px;font-weight:600;padding:6px;z-index:99999;letter-spacing:1px}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{background:var(--navy);padding:48px 0;text-align:center;border-top:1px solid rgba(255,255,255,.07)}
+.footer-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--white);margin-bottom:12px}
+.footer-logo span{color:var(--gold)}
+.footer-links{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:20px}
+.footer-links a{font-size:13px;color:rgba(255,255,255,.4);transition:.2s}
+.footer-links a:hover{color:rgba(255,255,255,.7)}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .ebook-mockup{max-width:400px;margin:0 auto}
+  .inside-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .section{padding:64px 0}
+  .forwho-grid{grid-template-columns:1fr}
+  .pricing-box{padding:36px 28px}
+  .modal-body{padding:24px 20px}
+  .hero{padding:72px 0 60px}
+  .problem-story{padding:36px 28px}
+  .hero-cta-row{flex-direction:column;align-items:flex-start}
+  .topbar-offer{display:none}
+  .price-new{font-size:44px}
+}
+</style>
+</head>
+<body>
+
+<!-- TEST MODE BANNER -->
+<div class="testmode-banner" id="testBanner" style="display:none">
+  🧪 TEST MODE — Tất cả thanh toán đều được bỏ qua. KHÔNG dùng cho sản phẩm thật.
+</div>
+
+<!-- ============================================================
+  STICKY TOP BAR
+  ============================================================ -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-inner">
+      <div class="topbar-logo">Làm Chủ <span>Claude AI</span></div>
+      <div class="topbar-offer">
+        🔥 Ưu đãi kết thúc sau:&nbsp;
+        <div class="topbar-countdown">
+          <span class="tc-block" id="tb-h">00</span>
+          <span class="tc-sep">:</span>
+          <span class="tc-block" id="tb-m">00</span>
+          <span class="tc-sep">:</span>
+          <span class="tc-block" id="tb-s">00</span>
+        </div>
+      </div>
+      <div class="topbar-cta">
+        <button class="btn btn-gold" style="padding:10px 22px;font-size:14px" onclick="openModal()">
+          Mua ngay — 79,000đ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+  [1] HERO
+  ============================================================ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <!-- Left: Copy -->
+      <div style="animation:fadeUp .7s both">
+        <div class="hero-tag">📘 Ebook thực chiến · Tiếng Việt</div>
+        <h1>Từ Người Dùng Thường Đến <em>Chuyên Nghiệp</em> Trong 90 Ngày</h1>
+        <p class="hero-sub">Hầu hết người dùng Claude nhận về câu trả lời chung chung rồi bỏ cuộc. Ebook này chỉ bạn cách xây hệ thống để Claude tự động làm việc — ngay cả khi bạn không ở đó.</p>
+
+        <div class="hero-countdown">
+          <span class="hcd-label">Ưu đãi hết sau</span>
+          <div class="hcd-blocks">
+            <div class="hcd-block"><span class="hcd-num" id="hcd-h">02</span><span class="hcd-unit">Giờ</span></div>
+            <div class="hcd-sep">:</div>
+            <div class="hcd-block"><span class="hcd-num" id="hcd-m">00</span><span class="hcd-unit">Phút</span></div>
+            <div class="hcd-sep">:</div>
+            <div class="hcd-block"><span class="hcd-num" id="hcd-s">00</span><span class="hcd-unit">Giây</span></div>
+          </div>
+        </div>
+
+        <div class="hero-cta-row">
+          <button class="btn btn-gold btn-lg" onclick="openModal()">
+            📥 Mua Ngay — 79,000đ
+          </button>
+          <a href="#chapters" class="btn btn-ghost">Xem nội dung ↓</a>
+        </div>
+        <div class="hero-price-note">Giá gốc <s>199,000đ</s> · Tiết kiệm 120,000đ · Thanh toán một lần, dùng mãi mãi</div>
+
+        <div class="hero-social-proof">
+          <div class="sp-item"><span class="sp-num">1,240+</span> người đã mua</div>
+          <div class="sp-item"><span class="sp-stars">★★★★★</span> 4.9/5 sao</div>
+          <div class="sp-item">📧 Giao ebook qua email</div>
+        </div>
+      </div>
+
+      <!-- Right: Mockup -->
+      <div class="ebook-mockup">
+        <div class="mock-card">
+          <div class="mock-badge">📘 Ebook · 5 Chương</div>
+          <div class="mock-title">Làm Chủ<span>Claude AI</span></div>
+          <div class="mock-sub">Hướng dẫn thực chiến từ prompt đến tự động hóa</div>
+          <div class="mock-chapters">
+            <div class="mock-ch"><div class="mock-ch-num">1</div>Prompt Hiệu Quả — Framework GCAO</div>
+            <div class="mock-ch"><div class="mock-ch-num">2</div>Cá Nhân Hóa — Hệ Điều Hành AI</div>
+            <div class="mock-ch"><div class="mock-ch-num">3</div>Projects & Skills — Làm Có Hệ Thống</div>
+            <div class="mock-ch"><div class="mock-ch-num">4</div>Tự Động Hóa — Connectors & Cowork</div>
+            <div class="mock-ch"><div class="mock-ch-num">5</div>Tư Duy Hệ Thống — Cấp Độ Chuyên Gia</div>
+          </div>
+          <div class="mock-footer">
+            <div class="mock-price-box">
+              <div class="mock-price-old">199,000đ</div>
+              <div class="mock-price-new">79K</div>
+            </div>
+            <div class="mock-pages">
+              <div style="font-size:22px;margin-bottom:4px">📄</div>
+              <div>20+ Ví dụ thực tế</div>
+              <div>5 Framework</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [2] PROBLEM
+  ============================================================ -->
+<section class="section">
+  <div class="container">
+    <div class="problem-intro fade-up">
+      <div class="tag">Bạn có đang gặp điều này?</div>
+      <h2>Tại sao 90% người dùng Claude <span class="gold">không nhận được kết quả</span> xứng đáng?</h2>
+      <p style="color:var(--muted)">Không phải lỗi của bạn. Không phải lỗi của Claude. Chỉ là bạn chưa có đúng hệ thống.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card fade-up">
+        <div class="pain-icon">😤</div>
+        <div class="pain-title">Câu trả lời chung chung, vô dụng</div>
+        <p class="pain-desc">Bạn hỏi, Claude trả lời những thứ bạn đã biết rồi. Cảm giác như đang dùng Google nhưng tệ hơn.</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">🔄</div>
+        <div class="pain-title">Giải thích lại từ đầu mỗi ngày</div>
+        <p class="pain-desc">Mỗi cuộc trò chuyện mới lại phải kể lại bạn là ai, bạn làm gì, bạn cần gì. Mệt mỏi và tốn thời gian.</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">🎲</div>
+        <div class="pain-title">Kết quả lúc tốt lúc xấu</div>
+        <p class="pain-desc">Hôm nay Claude cho kết quả tuyệt vời, ngày mai thì tệ hoàn toàn. Không đoán được, không tin tưởng được.</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">⏰</div>
+        <div class="pain-title">Tốn thêm thời gian hơn là tiết kiệm</div>
+        <p class="pain-desc">Bạn phải đọc, sửa, format lại mọi thứ Claude tạo ra. Đôi khi tự làm còn nhanh hơn.</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">📚</div>
+        <div class="pain-title">Học tính năng mới mà không dùng được</div>
+        <p class="pain-desc">Xem video, đọc bài viết về tính năng mới. Nhưng về đến công việc thật lại không biết áp dụng vào đâu.</p>
+      </div>
+    </div>
+    <div class="problem-story fade-up">
+      <p class="problem-story-text">Bạn không sai. Claude không tệ. Vấn đề là bạn đang dùng một công cụ mạnh mẽ <em>như một thanh tìm kiếm</em> — trong khi nó có thể là <em>hệ điều hành cho toàn bộ công việc của bạn.</em></p>
+      <p class="problem-story-sub">Ebook này là cầu nối giữa hai trạng thái đó.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [3] SOLUTION / CHAPTERS
+  ============================================================ -->
+<section class="section section-alt" id="chapters">
+  <div class="container">
+    <div class="solution-intro fade-up">
+      <div class="tag">Nội dung ebook</div>
+      <h2>5 Chương — Một hệ thống <span class="gold">hoàn chỉnh từ A đến Z</span></h2>
+      <p style="color:var(--muted)">Mỗi chương xây trên nền tảng của chương trước. Không nhảy cóc. Không lý thuyết thừa.</p>
+    </div>
+    <div class="accordion">
+
+      <div class="acc-item open fade-up">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-num">1</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Nói Chuyện Để Ra Kết Quả</div>
+            <div class="acc-subtitle">Framework GCAO · Nghệ thuật iteration</div>
+          </div>
+          <div class="acc-arrow">▾</div>
+        </div>
+        <div class="acc-body">
+          <p class="acc-desc">Tại sao cùng một câu hỏi, người nhận về kết quả vô dụng, người nhận kết quả thay đổi cả ngày làm việc. Framework GCAO (Mục tiêu + Bối cảnh + Hành động + Đầu ra) và kỹ thuật iteration — hai công cụ tạo ra 80% sự khác biệt.</p>
+          <div class="acc-outcome"><strong>Sau chương này bạn sẽ:</strong> Biết viết prompt nhận kết quả hữu ích ngay lần đầu. Có 3 ví dụ thực tế để tham khảo cho ngành của bạn.</div>
+        </div>
+      </div>
+
+      <div class="acc-item fade-up">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-num">2</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Cá Nhân Hóa — Hệ Điều Hành AI Của Bạn</div>
+            <div class="acc-subtitle">Custom Instructions · 5 phần thiết lập một lần</div>
+          </div>
+          <div class="acc-arrow">▾</div>
+        </div>
+        <div class="acc-body">
+          <p class="acc-desc">Dừng giải thích lại bản thân mỗi ngày. Template 5 phần (Danh tính, Phong cách, Mục tiêu, Lịch trình, Điều tránh né) giúp Claude hiểu bạn sâu sắc từ cuộc trò chuyện đầu tiên — mãi mãi.</p>
+          <div class="acc-outcome"><strong>Sau chương này bạn sẽ:</strong> Có Custom Instructions hoàn chỉnh. Claude không cần được giới thiệu lại. Kết quả nhất quán hơn ngay lập tức.</div>
+        </div>
+      </div>
+
+      <div class="acc-item fade-up">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-num">3</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Projects & Skills — Làm Việc Có Hệ Thống</div>
+            <div class="acc-subtitle">DBS Framework · Quy trình tự động hóa</div>
+          </div>
+          <div class="acc-arrow">▾</div>
+        </div>
+        <div class="acc-body">
+          <p class="acc-desc">Projects là "phòng làm việc" có ngữ cảnh riêng. Skills là quy trình tự động hóa — gõ một từ khóa, Claude chạy toàn bộ quy trình theo đúng tiêu chuẩn của bạn. Framework DBS giúp xây từ đơn giản đến phức tạp.</p>
+          <div class="acc-outcome"><strong>Sau chương này bạn sẽ:</strong> Tạo được ít nhất 1 Project và 1 Skill hoạt động. Tiết kiệm ngay 2-3 giờ/tuần từ tuần đầu tiên.</div>
+        </div>
+      </div>
+
+      <div class="acc-item fade-up">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-num">4</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Tự Động Hóa Thực Sự</div>
+            <div class="acc-subtitle">Connectors · Claude Cowork · Scheduled Tasks</div>
+          </div>
+          <div class="acc-arrow">▾</div>
+        </div>
+        <div class="acc-body">
+          <p class="acc-desc">Connectors kết nối Gmail, Calendar, Drive. Claude Cowork làm việc trực tiếp với file trên máy tính. Scheduled Tasks chạy tự động theo lịch — ngay cả khi bạn đang ngủ.</p>
+          <div class="acc-outcome"><strong>Sau chương này bạn sẽ:</strong> Có ít nhất 1 tác vụ tự chạy mỗi sáng. Tiết kiệm 5-10 giờ/tuần có thể đo lường được.</div>
+        </div>
+      </div>
+
+      <div class="acc-item fade-up">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-num">5</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Tư Duy Hệ Thống — Cấp Độ Chuyên Gia</div>
+            <div class="acc-subtitle">5 nguyên tắc · Lộ trình 90 ngày · Thói quen bền vững</div>
+          </div>
+          <div class="acc-arrow">▾</div>
+        </div>
+        <div class="acc-body">
+          <p class="acc-desc">Công cụ thay đổi, nhưng tư duy đúng không lỗi thời. 5 cấp độ thành thạo, lộ trình 90 ngày rõ ràng, và những thói quen giúp hệ thống ngày càng mạnh hơn — không phải yếu đi theo thời gian.</p>
+          <div class="acc-outcome"><strong>Sau chương này bạn sẽ:</strong> Có bản đồ rõ ràng cho 90 ngày tiếp theo. Biết hỏi đúng câu hỏi khi Claude ra tính năng mới.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [4] WHAT'S INSIDE
+  ============================================================ -->
+<section class="section">
+  <div class="container">
+    <div class="inside-grid">
+      <div class="fade-up">
+        <div class="tag">Bạn nhận được gì</div>
+        <h2>Không phải lý thuyết. <span class="gold">Thực chiến ngay.</span></h2>
+        <p style="color:var(--muted);margin-bottom:32px">Mỗi khái niệm đều có ví dụ thực tế, mỗi chương đều có bài tập có thể làm ngay trong ngày đọc.</p>
+        <ul class="inside-list">
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>5 chương</strong> thực chiến, có thể áp dụng ngay trong ngày đọc</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>Framework GCAO</strong> — công thức prompt tạo kết quả nhất quán</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>Template Custom Instructions</strong> 5 phần — điền vào là dùng được</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>20+ ví dụ thực tế</strong> từ nhiều ngành: kinh doanh, giáo dục, văn phòng</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>Lộ trình 90 ngày</strong> từng bước rõ ràng, không phải "học cho có"</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>DBS Framework</strong> để xây Skills từ đơn giản đến tự động hóa phức tạp</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>Bài tập cuối mỗi chương</strong> — làm trong 15 phút, thấy kết quả ngay</span></li>
+          <li class="inside-item"><div class="inside-check">✓</div><span><strong>Cập nhật miễn phí</strong> khi nội dung được nâng cấp</span></li>
+        </ul>
+      </div>
+      <div class="fade-up">
+        <div class="stats-grid">
+          <div class="stat-card"><span class="stat-num">5</span><div class="stat-label">Chương thực chiến</div></div>
+          <div class="stat-card"><span class="stat-num">20+</span><div class="stat-label">Ví dụ thực tế</div></div>
+          <div class="stat-card"><span class="stat-num">5</span><div class="stat-label">Framework độc quyền</div></div>
+          <div class="stat-card"><span class="stat-num">90</span><div class="stat-label">Ngày lộ trình</div></div>
+        </div>
+        <div style="margin-top:24px;background:var(--navy);border-radius:var(--r);padding:24px;text-align:center">
+          <div style="font-size:13px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Thời gian tiết kiệm trung bình</div>
+          <div style="font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:var(--gold);line-height:1">2-3h</div>
+          <div style="font-size:15px;color:rgba(255,255,255,.6)">mỗi ngày sau khi xây xong hệ thống</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [5] FOR WHO
+  ============================================================ -->
+<section class="section section-alt">
+  <div class="container">
+    <div style="text-align:center;max-width:560px;margin:0 auto 48px" class="fade-up">
+      <div class="tag">Honest marketing</div>
+      <h2>Ebook này <span class="gold">dành cho bạn</span> — hay không?</h2>
+    </div>
+    <div class="forwho-grid">
+      <div class="forwho-card fwh-yes fade-up">
+        <div class="forwho-header">✅ Dành cho bạn nếu...</div>
+        <div class="forwho-body">
+          <div class="forwho-item"><span style="color:var(--green);font-size:16px">✓</span><span>Bạn dùng Claude (hoặc AI) ít nhất 3 lần/tuần nhưng chưa thấy kết quả xứng đáng</span></div>
+          <div class="forwho-item"><span style="color:var(--green);font-size:16px">✓</span><span>Bạn muốn tiết kiệm 5-10 giờ/tuần từ công việc lặp đi lặp lại</span></div>
+          <div class="forwho-item"><span style="color:var(--green);font-size:16px">✓</span><span>Bạn là chủ doanh nghiệp nhỏ, freelancer, nhân viên văn phòng hoặc giáo viên</span></div>
+          <div class="forwho-item"><span style="color:var(--green);font-size:16px">✓</span><span>Bạn muốn hệ thống tự chạy — không phải làm việc nhiều hơn</span></div>
+          <div class="forwho-item"><span style="color:var(--green);font-size:16px">✓</span><span>Bạn sẵn sàng bỏ 15 phút/ngày để thực hành trong 2 tuần đầu</span></div>
+        </div>
+      </div>
+      <div class="forwho-card fwh-no fade-up">
+        <div class="forwho-header">❌ Không dành cho bạn nếu...</div>
+        <div class="forwho-body">
+          <div class="forwho-item"><span style="color:var(--red);font-size:16px">✗</span><span>Bạn là developer tìm cách tích hợp Claude API vào sản phẩm phần mềm</span></div>
+          <div class="forwho-item"><span style="color:var(--red);font-size:16px">✗</span><span>Bạn muốn đọc rồi để đó — ebook này yêu cầu thực hành mới có kết quả</span></div>
+          <div class="forwho-item"><span style="color:var(--red);font-size:16px">✗</span><span>Bạn chưa bao giờ dùng Claude và không định dùng trong 30 ngày tới</span></div>
+          <div class="forwho-item"><span style="color:var(--red);font-size:16px">✗</span><span>Bạn tìm kiếm "hack" hay "lừa" AI — ebook này dạy xây hệ thống bền vững</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [6] TESTIMONIALS
+  ============================================================ -->
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;max-width:520px;margin:0 auto 48px" class="fade-up">
+      <div class="tag">Người thật · Kết quả thật</div>
+      <h2>Hơn 1,200 người đã <span class="gold">thay đổi cách làm việc</span></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card fade-up">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Sau 2 tuần áp dụng, tôi tiết kiệm gần 3 tiếng mỗi ngày. Skills cho việc soạn email và báo cáo tuần thay đổi hoàn toàn quy trình làm việc của tôi."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">TL</div>
+          <div><div class="testi-name">Trần Linh</div><div class="testi-role">Chủ shop online · TP.HCM</div></div>
+        </div>
+      </div>
+      <div class="testi-card fade-up">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Framework GCAO là thứ tôi ước mình biết từ đầu. Prompt cũ của tôi quá sơ sài, giờ mỗi câu hỏi đều ra kết quả tôi thực sự cần."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MN</div>
+          <div><div class="testi-name">Minh Nguyễn</div><div class="testi-role">Chuyên viên phân tích · Hà Nội</div></div>
+        </div>
+      </div>
+      <div class="testi-card fade-up">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Tôi dạy đại học, email sinh viên chiếm 2 tiếng mỗi ngày. Sau khi tạo Skill với Connector Gmail, giờ tôi chỉ mất 20 phút để review và gửi."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">PH</div>
+          <div><div class="testi-name">Phạm Hùng</div><div class="testi-role">Giảng viên đại học · Đà Nẵng</div></div>
+        </div>
+      </div>
+      <div class="testi-card fade-up">
+        <div class="testi-stars">★★★★☆</div>
+        <p class="testi-text">"Chương 4 về Connectors thực sự khai sáng. Lần đầu tôi thấy Claude không chỉ là chatbot mà là một cộng sự thực sự làm được việc."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">HT</div>
+          <div><div class="testi-name">Hương Trần</div><div class="testi-role">Nội trợ · Kinh doanh online</div></div>
+        </div>
+      </div>
+      <div class="testi-card fade-up">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"79k cho thứ này thực sự quá rẻ. Tôi làm môi giới BĐS, mỗi tuần tiết kiệm được khoảng 8 tiếng nhờ hệ thống Skills và Scheduled Tasks."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">KD</div>
+          <div><div class="testi-name">Khải Dương</div><div class="testi-role">Môi giới bất động sản · HCM</div></div>
+        </div>
+      </div>
+      <div class="testi-card fade-up">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Ebook viết rất gần gũi, không kỹ thuật. Tôi 45 tuổi, không rành công nghệ, vẫn làm được tất cả những gì ebook hướng dẫn trong 3 tuần."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">BL</div>
+          <div><div class="testi-name">Bích Lan</div><div class="testi-role">Quản lý cửa hàng · Cần Thơ</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [7] PRICING
+  ============================================================ -->
+<section class="section section-alt" id="pricing">
+  <div class="container">
+    <div style="text-align:center;max-width:520px;margin:0 auto 48px" class="fade-up">
+      <div class="tag">Đầu tư một lần · Dùng mãi mãi</div>
+      <h2>Chỉ bằng một <span class="gold">bữa ăn ngoài</span> — nhận lại hàng trăm giờ</h2>
+    </div>
+    <div class="pricing-wrap">
+      <div class="pricing-box fade-up">
+        <div class="pricing-badge">🔥 Ưu đãi giới hạn</div>
+        <div class="pricing-title">Ebook "Làm Chủ Claude AI" — Trọn bộ</div>
+
+        <div class="pricing-countdown">
+          <div class="pc-label">Giá này kết thúc sau</div>
+          <div class="pc-blocks">
+            <div class="pc-block"><span class="pc-num" id="pc-h">02</span><span class="pc-unit">Giờ</span></div>
+            <div class="pc-sep">:</div>
+            <div class="pc-block"><span class="pc-num" id="pc-m">00</span><span class="pc-unit">Phút</span></div>
+            <div class="pc-sep">:</div>
+            <div class="pc-block"><span class="pc-num" id="pc-s">00</span><span class="pc-unit">Giây</span></div>
+          </div>
+        </div>
+
+        <div class="pricing-price-row">
+          <span class="price-old">199,000đ</span>
+          <span class="price-new">79.000</span>
+          <span class="price-unit">đ</span>
+        </div>
+        <div class="pricing-save">Bạn tiết kiệm 120,000đ (60% off)</div>
+
+        <ul class="pricing-includes">
+          <li class="pi-item"><span class="pi-check">✓</span><span>Toàn bộ 5 chương + Lời Mở Đầu + Lời Kết</span></li>
+          <li class="pi-item"><span class="pi-check">✓</span><span>Template Custom Instructions 5 phần (điền ngay)</span></li>
+          <li class="pi-item"><span class="pi-check">✓</span><span>DBS Framework để xây Skills chuyên nghiệp</span></li>
+          <li class="pi-item"><span class="pi-check">✓</span><span>20+ ví dụ thực tế có thể copy & áp dụng ngay</span></li>
+          <li class="pi-item"><span class="pi-check">✓</span><span>Lộ trình 90 ngày từng bước rõ ràng</span></li>
+          <li class="pi-item"><span class="pi-check">✓</span><span>Cập nhật miễn phí vĩnh viễn</span></li>
+          <li class="pi-item"><span class="pi-check">✓</span><span>Giao hàng tức thì qua email sau thanh toán</span></li>
+        </ul>
+
+        <div class="pricing-cta-wrap">
+          <button class="btn btn-gold btn-full btn-lg" onclick="openModal()">
+            📥 Mua Ngay — Chỉ 79,000đ
+          </button>
+        </div>
+
+        <div class="pricing-guarantee">
+          <span class="icon">📧</span>
+          <span><strong style="color:rgba(255,255,255,.8)">Giao ebook qua email tự động</strong> — Ngay sau khi thanh toán xác nhận, ebook PDF được gửi đến email của bạn trong vòng 5 phút.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [8] FAQ
+  ============================================================ -->
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;max-width:480px;margin:0 auto 48px" class="fade-up">
+      <div class="tag">Câu hỏi thường gặp</div>
+      <h2>Bạn đang thắc mắc điều gì?</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Tôi nhận ebook bằng cách nào sau khi thanh toán? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Ngay sau khi thanh toán được xác nhận, hệ thống tự động gửi email chứa link download đến địa chỉ email bạn đăng ký. Thường trong vòng 1–5 phút. Kiểm tra hộp thư Spam nếu không thấy email.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Tôi cần gói Claude nào để áp dụng được ebook? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Phần lớn nội dung (Chương 1, 2, 3) hoạt động với gói Free. Chương 4 (Connectors, Cowork, Scheduled Tasks) cần gói Pro (khoảng $20/tháng). Ebook có ghi rõ yêu cầu từng chương.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Tôi không giỏi công nghệ, có học được không? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Hoàn toàn được. Ebook được viết cho người không có nền tảng kỹ thuật. Nếu bạn biết nhắn tin và gõ email, bạn làm được tất cả mọi thứ trong ebook. Nhiều người mua ở độ tuổi 45-55 phản hồi rất tích cực.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Ebook gửi qua email mất bao lâu? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Sau khi chúng tôi xác nhận thanh toán (thường trong vòng 1–15 phút trong giờ hành chính), ebook PDF sẽ được gửi ngay đến email bạn đăng ký. Vui lòng kiểm tra hộp thư Spam nếu không thấy email sau 15 phút. Nếu vẫn chưa nhận được sau 1 giờ, liên hệ hỗ trợ qua email với mã đơn hàng của bạn.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Ebook có được cập nhật không khi Claude ra tính năng mới? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Có. Tất cả người mua đều nhận cập nhật miễn phí vĩnh viễn. Khi ebook được nâng cấp nội dung, chúng tôi gửi email thông báo và link download phiên bản mới.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Tôi có thể thanh toán bằng phương thức nào? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Chúng tôi hỗ trợ chuyển khoản ngân hàng qua VietQR (hoạt động với mọi ngân hàng Việt Nam kể cả Vietcombank, BIDV, Techcombank, MBBank...). Quét mã QR hoặc chuyển khoản thủ công đều được.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Mất bao lâu để thấy kết quả rõ ràng? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Chương 1 (prompt framework): thấy kết quả ngay trong buổi đọc đầu tiên. Chương 2 (Custom Instructions): thấy khác biệt từ ngày hôm sau. Hệ thống đầy đủ (Chương 3-4): cần 2-4 tuần thực hành. Lộ trình 90 ngày trong Chương 5 hướng dẫn từng bước.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Tôi dùng Claude cho công việc cụ thể (dạy học / bán hàng / văn phòng), ebook có phù hợp? <span class="fa-arrow">▾</span></div>
+        <div class="faq-a">Có. Ebook có ví dụ thực tế từ nhiều ngành: giáo viên, chủ doanh nghiệp nhỏ, nhân viên văn phòng, freelancer, nội trợ. Framework và nguyên tắc áp dụng được cho mọi loại công việc.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  [9] FINAL CTA
+  ============================================================ -->
+<section class="final-cta">
+  <div class="container" style="position:relative;z-index:1">
+    <div class="fade-up">
+      <h2>Bạn đã đọc đến đây. <span>Bước cuối cùng</span> là bắt đầu.</h2>
+      <p>Hơn 1,200 người đã thay đổi cách làm việc. Tuần tới bạn có thể là người tiếp theo — hoặc bạn sẽ tiếp tục dùng Claude theo cách cũ.</p>
+      <button class="btn btn-gold btn-lg" onclick="openModal()">
+        📥 Bắt Đầu Ngay — Chỉ 79,000đ
+      </button>
+      <p class="urgency-text">🔥 Còn <span id="final-countdown">--:--:--</span> ở mức giá này · Thanh toán an toàn · Giao hàng tức thì</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  FOOTER
+  ============================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">Làm Chủ <span>Claude AI</span></div>
+    <div class="footer-links">
+      <a href="/cdn-cgi/l/email-protection#45363035352a373105203d24283529206b262a28">Hỗ trợ</a>
+      <a href="#">Điều khoản sử dụng</a>
+      <a href="#">Bảo mật</a>
+    </div>
+    <div class="footer-copy">© 2025 · Thanh toán an toàn qua VietQR · Giao hàng tức thì qua email</div>
+  </div>
+</footer>
+
+<!-- ============================================================
+  PAYMENT MODAL
+  ============================================================ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Đặt mua ebook</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Progress Steps -->
+      <div class="modal-steps" id="modalSteps">
+        <div class="ms-step active" id="step-indicator-1">
+          <div class="ms-circle">1</div>
+          <div class="ms-label">Thông tin</div>
+        </div>
+        <div class="ms-step" id="step-indicator-2">
+          <div class="ms-circle">2</div>
+          <div class="ms-label">Thanh toán</div>
+        </div>
+        <div class="ms-step" id="step-indicator-3">
+          <div class="ms-circle">3</div>
+          <div class="ms-label">Nhận ebook</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 1: Form thông tin ── -->
+      <div class="step-panel active" id="panel-1">
+        <h3 style="margin-bottom:6px;font-size:18px">Điền thông tin của bạn</h3>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Ebook sẽ được gửi đến email này ngay sau khi thanh toán.</p>
+
+        <div class="form-group">
+          <label class="form-label">Họ và tên <span>*</span></label>
+          <input type="text" id="inp-name" class="form-input" placeholder="Nguyễn Văn A" oninput="validateField('name')">
+          <div class="form-error" id="err-name">Vui lòng nhập tên đầy đủ (ít nhất 3 ký tự)</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email <span>*</span></label>
+          <input type="email" id="inp-email" class="form-input" placeholder="email@example.com" oninput="validateField('email')">
+          <div class="form-error" id="err-email">Vui lòng nhập email hợp lệ</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Số điện thoại <span>*</span></label>
+          <input type="tel" id="inp-phone" class="form-input" placeholder="0912 345 678" oninput="validateField('phone')">
+          <div class="form-error" id="err-phone">Vui lòng nhập số điện thoại 10 số hợp lệ</div>
+        </div>
+
+        <div style="background:var(--gold-pale);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 16px;font-size:13px;color:#92400e;margin-bottom:24px">
+          🔒 Thông tin của bạn được bảo mật. Chúng tôi không chia sẻ dữ liệu với bên thứ ba.
+        </div>
+
+        <div style="background:var(--navy);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:13px;color:rgba(255,255,255,.5)">Tổng thanh toán</div>
+            <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold)">79,000đ</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:rgba(255,255,255,.4);text-decoration:line-through">199,000đ</div>
+            <div style="font-size:13px;color:var(--gold)">Tiết kiệm 120,000đ</div>
+          </div>
+        </div>
+
+        <button class="btn btn-gold btn-full btn-lg" onclick="goToPayment()">
+          Tiếp tục → Thanh toán
+        </button>
+      </div>
+
+      <!-- ── STEP 2: QR Payment ── -->
+      <div class="step-panel" id="panel-2">
+        <div class="qr-wrap">
+          <p style="font-size:14px;color:var(--muted);margin-bottom:12px">Mã đơn hàng của bạn:</p>
+          <div class="qr-order-id" id="orderIdDisplay">ORDER-...</div>
+
+          <div class="qr-box">
+            <div id="qrcode-container"></div>
+          </div>
+
+          <div class="qr-bank-info">
+            <div class="qr-bank-row">
+              <span class="qr-bank-label">Ngân hàng</span>
+              <span class="qr-bank-value" id="disp-bank">Vietcombank</span>
+            </div>
+            <div class="qr-bank-row">
+              <span class="qr-bank-label">Số tài khoản</span>
+              <span class="qr-bank-value" id="disp-account">—</span>
+            </div>
+            <div class="qr-bank-row">
+              <span class="qr-bank-label">Chủ tài khoản</span>
+              <span class="qr-bank-value" id="disp-name">—</span>
+            </div>
+            <div class="qr-bank-row">
+              <span class="qr-bank-label">Nội dung CK</span>
+              <span class="qr-bank-value" id="disp-content" style="color:#fbbf24">—</span>
+            </div>
+            <div class="qr-bank-row">
+              <span class="qr-bank-label">Số tiền</span>
+              <span class="qr-bank-value amount">79,000đ</span>
+            </div>
+          </div>
+
+          <div class="qr-timer">
+            ⏱️ Vui lòng thanh toán trong: <strong id="pay-timer">15:00</strong>
+          </div>
+
+          <p class="qr-note">Sau khi chuyển khoản, nhấn nút bên dưới để xác nhận. Ebook sẽ được gửi đến email <strong id="disp-email-confirm">—</strong> trong vòng 5 phút.</p>
+
+          <button class="btn btn-gold btn-full" style="margin-bottom:12px" onclick="confirmPayment()">
+            ✅ Tôi đã chuyển khoản xong
+          </button>
+
+          <button class="qr-manual-btn" onclick="toggleManualForm()">
+            Nhập mã giao dịch thủ công
+          </button>
+
+          <div class="manual-form" id="manualForm">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Nhập mã giao dịch từ app ngân hàng (tùy chọn):</p>
+            <input type="text" id="inp-txid" class="form-input" placeholder="VD: FT24001234567890" style="margin-bottom:12px">
+            <button class="btn btn-gold btn-full" onclick="confirmPayment()">Xác nhận thanh toán</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Success + Download ── -->
+      <div class="step-panel" id="panel-3">
+        <div class="success-wrap">
+          <div class="success-icon">🎉</div>
+          <h2 class="success-title">Cảm ơn <span id="success-name">bạn</span>!</h2>
+          <p class="success-sub">Thanh toán đã được ghi nhận. Ebook của bạn đã sẵn sàng để tải về.</p>
+
+          <div class="email-check">
+            <span>📧</span>
+            <span>Email xác nhận đã được gửi đến <strong id="success-email">—</strong></span>
+          </div>
+
+          <div class="download-box">
+            <div class="dl-title">📧 Ebook đã được gửi vào email của bạn</div>
+            <div style="background:rgba(232,166,35,.15);border:1px solid rgba(232,166,35,.3);border-radius:12px;padding:18px 20px;text-align:left;margin-bottom:14px">
+              <div style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:6px">Email được gửi đến:</div>
+              <div style="font-size:16px;font-weight:600;color:var(--gold)" id="success-email-big">—</div>
+            </div>
+            <div style="font-size:14px;color:rgba(255,255,255,.65);line-height:1.75;text-align:left">
+              <div style="margin-bottom:8px">📌 <strong style="color:rgba(255,255,255,.85)">Vui lòng kiểm tra hộp thư của bạn</strong> — ebook PDF đính kèm trong email xác nhận.</div>
+              <div style="margin-bottom:8px">📁 Nếu không thấy email trong <strong style="color:rgba(255,255,255,.85)">5 phút</strong>, hãy kiểm tra thư mục <strong style="color:rgba(255,255,255,.85)">Spam / Quảng cáo</strong>.</div>
+              <div>✉️ Vẫn chưa nhận được? Liên hệ hỗ trợ với mã đơn hàng bên dưới.</div>
+            </div>
+            <div class="dl-note" style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">File PDF · Nhận vĩnh viễn · Cập nhật miễn phí qua email</div>
+          </div>
+
+          <p style="font-size:13px;color:var(--muted);line-height:1.6">
+            Nếu có vấn đề, email về <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8bbbdb8b8a7babc88adb0a9a5b8a4ade6aba7a5">[email&#160;protected]</a></strong> với mã đơn hàng <strong id="success-order">—</strong>
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+  </div>
+</div>
+
+<!-- ============================================================
+  JAVASCRIPT
+  ============================================================ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── EmailJS Loader ── */
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  s.onload=function(){emailjs.init(CONFIG.emailjs.publicKey)};
+  document.head.appendChild(s);
+})();
+
+/* ============================================================
+   COUNTDOWN TIMERS
+   ============================================================ */
+var PROMO_END_KEY='claude_ebook_promo_end';
+var PROMO_VER_KEY='claude_ebook_promo_ver';
+var storedVer=localStorage.getItem(PROMO_VER_KEY);
+var configVer=String(CONFIG.promoHours);
+var promoEnd=localStorage.getItem(PROMO_END_KEY);
+var maxMs=CONFIG.promoHours*3600*1000;
+if(!promoEnd||storedVer!==configVer||(parseInt(promoEnd)-Date.now())>maxMs){
+  promoEnd=Date.now()+maxMs;
+  localStorage.setItem(PROMO_END_KEY,promoEnd);
+  localStorage.setItem(PROMO_VER_KEY,configVer);
+}
+promoEnd=parseInt(promoEnd);
+
+function formatCountdown(ms){
+  if(ms<=0)return{h:'00',m:'00',s:'00',str:'00:00:00'};
+  var tot=Math.floor(ms/1000);
+  var h=Math.floor(tot/3600),m=Math.floor((tot%3600)/60),s=tot%60;
+  var pad=function(n){return String(n).padStart(2,'0')};
+  return{h:pad(h),m:pad(m),s:pad(s),str:pad(h)+':'+pad(m)+':'+pad(s)};
+}
+
+function tickCountdowns(){
+  var rem=promoEnd-Date.now();
+  var t=formatCountdown(rem);
+  // topbar
+  setText('tb-h',t.h); setText('tb-m',t.m); setText('tb-s',t.s);
+  // hero
+  setText('hcd-h',t.h); setText('hcd-m',t.m); setText('hcd-s',t.s);
+  // pricing
+  setText('pc-h',t.h); setText('pc-m',t.m); setText('pc-s',t.s);
+  // final
+  setText('final-countdown',t.str);
+}
+setInterval(tickCountdowns,1000);
+tickCountdowns();
+
+function setText(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
+
+/* ── Payment timer (15 min) ── */
+var payTimerInterval=null;
+
+function startPayTimer(){
+  var end=Date.now()+15*60*1000;
+  clearInterval(payTimerInterval);
+  payTimerInterval=setInterval(function(){
+    var rem=end-Date.now();
+    if(rem<=0){clearInterval(payTimerInterval);setText('pay-timer','00:00');return;}
+    var t=formatCountdown(rem);
+    setText('pay-timer',t.m+':'+t.s);
+  },1000);
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function openModal(){
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleOverlayClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+
+/* ============================================================
+   FORM VALIDATION
+   ============================================================ */
+function validateField(field){
+  var val,ok,errEl,inpEl;
+  if(field==='name'){
+    inpEl=document.getElementById('inp-name');
+    errEl=document.getElementById('err-name');
+    val=inpEl.value.trim();
+    ok=val.length>=3;
+  }else if(field==='email'){
+    inpEl=document.getElementById('inp-email');
+    errEl=document.getElementById('err-email');
+    val=inpEl.value.trim();
+    ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  }else if(field==='phone'){
+    inpEl=document.getElementById('inp-phone');
+    errEl=document.getElementById('err-phone');
+    val=inpEl.value.replace(/\s/g,'');
+    ok=/^(0|\+84)[0-9]{9}$/.test(val);
+  }
+  if(inpEl&&errEl){
+    inpEl.classList.toggle('error',!ok&&inpEl.value.length>0);
+    errEl.classList.toggle('show',!ok&&inpEl.value.length>0);
+  }
+  return ok;
+}
+
+function validateAll(){
+  var n=validateField('name'),e=validateField('email'),p=validateField('phone');
+  // force show errors
+  ['name','email','phone'].forEach(function(f){validateField(f);});
+  return n&&e&&p;
+}
+
+/* ============================================================
+   ORDER ID
+   ============================================================ */
+var currentOrderId='';
+var currentCustomer={};
+
+function generateOrderId(){
+  var rand=Math.floor(Math.random()*9000)+1000;
+  return 'ORDER-'+Date.now()+'-'+rand;
+}
+
+/* ============================================================
+   STEP NAVIGATION
+   ============================================================ */
+function goToStep(n){
+  document.querySelectorAll('.step-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('panel-'+n).classList.add('active');
+  // update indicators
+  for(var i=1;i<=3;i++){
+    var ind=document.getElementById('step-indicator-'+i);
+    ind.classList.remove('active','done');
+    if(i<n)ind.classList.add('done');
+    else if(i===n)ind.classList.add('active');
+  }
+  var titles=['Đặt mua ebook','Thanh toán','Nhận ebook'];
+  setText('modalTitle',titles[n-1]);
+}
+
+/* ── Step 1 → 2 ── */
+function goToPayment(){
+  if(!validateAll())return;
+
+  // TEST MODE: skip payment
+  if(CONFIG.testMode){
+    currentCustomer={name:document.getElementById('inp-name').value.trim(),email:document.getElementById('inp-email').value.trim(),phone:document.getElementById('inp-phone').value.trim()};
+    currentOrderId=generateOrderId();
+    goToSuccess();
+    return;
+  }
+
+  currentCustomer={
+    name:document.getElementById('inp-name').value.trim(),
+    email:document.getElementById('inp-email').value.trim(),
+    phone:document.getElementById('inp-phone').value.trim()
+  };
+  currentOrderId=generateOrderId();
+
+  // populate QR info
+  setText('orderIdDisplay',currentOrderId);
+  setText('disp-bank',CONFIG.bankName);
+  setText('disp-account',CONFIG.accountNumber);
+  setText('disp-name',CONFIG.accountName);
+  setText('disp-content',currentOrderId);
+  setText('disp-email-confirm',currentCustomer.email);
+
+  // Generate VietQR URL
+  var qrData='https://img.vietqr.io/image/'+CONFIG.bankCode+'-'+CONFIG.accountNumber+'-compact2.png?amount='+CONFIG.amount+'&addInfo='+encodeURIComponent(currentOrderId)+'&accountName='+encodeURIComponent(CONFIG.accountName);
+
+  // Clear + generate QR
+  var qrContainer=document.getElementById('qrcode-container');
+  qrContainer.innerHTML='';
+
+  // Use VietQR image (most reliable for banking)
+  var img=document.createElement('img');
+  img.src=qrData;
+  img.style.width='200px';
+  img.style.height='200px';
+  img.style.borderRadius='8px';
+  img.alt='VietQR Code';
+  img.onerror=function(){
+    // Fallback: use qrcode.js with bank transfer string
+    qrContainer.innerHTML='';
+    new QRCode(qrContainer,{
+      text:'BANK:'+CONFIG.bankCode+'\nACCOUNT:'+CONFIG.accountNumber+'\nAMOUNT:'+CONFIG.amount+'\nCONTENT:'+currentOrderId,
+      width:200,height:200,colorDark:'#0f1b2d',colorLight:'#ffffff'
+    });
+  };
+  qrContainer.appendChild(img);
+
+  startPayTimer();
+  goToStep(2);
+}
+
+/* ── Step 2 → 3 ── */
+function confirmPayment(){
+  // In production: verify via webhook. Here we trust user + send email.
+  var btn=document.querySelector('#panel-2 .btn-gold:first-of-type');
+  if(btn){
+    btn.disabled=true;
+    btn.innerHTML='<div class="spinner"></div>&nbsp;Đang xử lý...';
+  }
+  clearInterval(payTimerInterval);
+
+  // Save to localStorage
+  localStorage.setItem('claude_ebook_purchased',JSON.stringify({
+    orderId:currentOrderId,
+    customer:currentCustomer,
+    ts:Date.now()
+  }));
+
+  // Send email via EmailJS
+  sendConfirmationEmail(function(){goToSuccess();});
+}
+
+function goToSuccess(){
+  var firstName=currentCustomer.name.split(' ').pop();
+  setText('success-name',firstName);
+  setText('success-email',currentCustomer.email);
+  setText('success-email-big',currentCustomer.email);
+  setText('success-order',currentOrderId);
+  goToStep(3);
+}
+
+/* ── Manual form toggle ── */
+function toggleManualForm(){
+  var f=document.getElementById('manualForm');
+  f.classList.toggle('show');
+}
+
+/* ============================================================
+   EMAIL SENDING (EmailJS)
+   ============================================================ */
+function sendConfirmationEmail(callback){
+  if(typeof emailjs==='undefined'){callback();return;}
+  emailjs.send(CONFIG.emailjs.serviceId,CONFIG.emailjs.templateId,{
+    to_name:currentCustomer.name,
+    to_email:currentCustomer.email,
+    order_id:currentOrderId,
+    download_url:CONFIG.ebookUrl,
+    amount:'79,000đ'
+  }).then(function(){callback();},function(err){
+    console.warn('EmailJS error:',err);
+    callback(); // Still proceed
+  });
+}
+
+/* ============================================================
+   DOWNLOAD
+   ============================================================ */
+/* downloadEbook() đã bị vô hiệu — ebook chỉ giao qua email */
+function downloadEbook(){
+  alert('Ebook đã được gửi qua email của bạn. Vui lòng kiểm tra hộp thư.');
+}
+
+/* ============================================================
+   USECASE A — EMAIL GATE (Lead capture)
+   ============================================================ */
+/* Call openEmailGate() anywhere to show free lead capture */
+function openEmailGate(){
+  if(localStorage.getItem('claude_ebook_email_gate')){
+    alert('Bạn đã đăng ký. Ebook đã được gửi vào email trước đó của bạn.');
+    return;
+  }
+  var name=prompt('Nhập tên của bạn:','');
+  var email=prompt('Nhập email để nhận chapter miễn phí:','');
+  if(!name||!email)return;
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Email không hợp lệ');return;}
+
+  if(typeof emailjs!=='undefined'){
+    emailjs.send(CONFIG.emailjs.serviceId,CONFIG.emailjs.templateId,{
+      to_name:name,to_email:email,
+      order_id:'FREECHAPTER',download_url:'(xem email)',amount:'Miễn phí'
+    });
+  }
+  localStorage.setItem('claude_ebook_email_gate','1');
+  alert('✅ Đã gửi! Kiểm tra email '+email+' trong vài phút.');
+}
+
+/* ============================================================
+   RESTORE STATE (nếu đã mua)
+   ============================================================ */
+(function(){
+  var p=localStorage.getItem('claude_ebook_purchased');
+  if(p){
+    try{
+      var d=JSON.parse(p);
+      currentOrderId=d.orderId;
+      currentCustomer=d.customer;
+    }catch(e){}
+  }
+})();
+
+/* ============================================================
+   ACCORDION
+   ============================================================ */
+function toggleAcc(header){
+  var item=header.parentElement;
+  var isOpen=item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(function(i){i.classList.remove('open');});
+  if(!isOpen)item.classList.add('open');
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+function toggleFaq(q){
+  var item=q.parentElement;
+  item.classList.toggle('open');
+}
+
+/* ============================================================
+   SCROLL ANIMATIONS
+   ============================================================ */
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});
+},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(function(el){observer.observe(el);});
+
+/* ============================================================
+   TEST MODE
+   ============================================================ */
+if(CONFIG.testMode){
+  document.getElementById('testBanner').style.display='block';
+  document.body.style.paddingTop='32px';
+  console.log('%c🧪 TEST MODE ACTIVE','background:#dc2626;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold');
+  console.log('CONFIG:',CONFIG);
+}
+</script>
+
+<!--
+=================================================================
+HƯỚNG DẪN TRIỂN KHAI (ĐỌC TRƯỚC KHI PUBLISH)
+=================================================================
+
+BƯỚC A — CHUẨN BỊ FILE EBOOK PDF
+  1. Mở từng file HTML ebook trong Chrome
+  2. Ctrl+P → Save as PDF (layout: A4, margins: Default)
+  3. Lặp cho 7 files → Merge tại ilovepdf.com
+  4. Upload file merged lên Google Drive
+  5. Right-click → Get link → "Anyone with link can view"
+  6. Copy link PDF → dán vào EmailJS template variable {{download_url}}
+  ⚠️  KHÔNG đặt link này trực tiếp trong HTML — chỉ trong email template
+
+BƯỚC B — SETUP EMAILJS (Miễn phí 200 email/tháng)
+  1. Đăng ký tại emailjs.com
+  2. Add Email Service (Gmail/Outlook)
+  3. Create Template với variables:
+     {{to_name}}, {{to_email}}, {{order_id}}, {{download_url}}, {{amount}}
+  4. Trong template đặt link tải PDF: <a href="{{download_url}}">Tải ebook</a>
+  5. Copy Service ID, Template ID, Public Key → dán vào CONFIG.emailjs
+  Mẫu tiêu đề email: "✅ Ebook Làm Chủ Claude AI - Đơn {{order_id}}"
+
+BƯỚC C — SETUP THÔNG TIN THANH TOÁN
+  Sửa CONFIG ở đầu file:
+  - accountNumber: Số TK Vietcombank của bạn
+  - accountName:   Tên chủ TK (IN HOA, không dấu)
+  - bankCode:      'VCB' cho Vietcombank
+
+BƯỚC D — XÁC NHẬN THANH TOÁN
+  Cách 1 - Thủ công (không cần server):
+    □ Khách chuyển khoản → nhấn "Tôi đã chuyển khoản"
+    □ EmailJS tự gửi email chứa link PDF ngay lập tức
+    □ Bạn kiểm tra giao dịch ngân hàng để đối soát thủ công
+
+  Cách 2 - Tự động với SePay (khuyến nghị):
+    □ Đăng ký sepay.vn (miễn phí)
+    □ Kết nối tài khoản ngân hàng
+    □ Cấu hình webhook → khi GD khớp mã đơn → gửi email tự động
+    □ Cần Netlify Function hoặc Vercel để nhận webhook
+
+BƯỚC E — DEPLOY
+  - Netlify Drop: kéo thả file HTML vào netlify.com/drop (30 giây)
+  - GitHub Pages: push repo → Settings → Pages
+  - Test với ?testmode=true trước khi live
+
+BƯỚC F — TEST FLOW ĐẦY ĐỦ
+  1. Mở ?testmode=true → Điền form → Xác nhận thanh toán
+  2. Kiểm tra email nhận được có link PDF không
+  3. Nhấn link → tải file PDF → mở được không
+  4. Xóa testmode → thử với chuyển khoản 1,000đ thật
+  5. Đối soát mã đơn hàng trong nội dung chuyển khoản
+=================================================================
+-->
+
+</body>
+</html>
