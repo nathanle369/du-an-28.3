@@ -1202,8 +1202,7 @@ function goToStep(n){
 
 /* ── Step 1 → 2 ── */
 function goToPayment(){
-  if(!validateAll())return;
-// Đăng ký đơn hàng lên server khi khách bấm thanh toán
+  // Đăng ký đơn hàng lên server khi khách bấm thanh toán
 function registerOrder() {
   // Thay domain sau khi deploy Netlify xong
   var url = 'https://TÊN-SITE.netlify.app/.netlify/functions/payment-webhook?action=register';
@@ -1217,6 +1216,8 @@ function registerOrder() {
     }),
   }).catch(function(e) { console.warn('registerOrder lỗi:', e); });
 }
+  if(!validateAll())return;
+
   // TEST MODE: skip payment
   if(CONFIG.testMode){
     currentCustomer={name:document.getElementById('inp-name').value.trim(),email:document.getElementById('inp-email').value.trim(),phone:document.getElementById('inp-phone').value.trim()};
