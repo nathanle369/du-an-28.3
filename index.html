@@ -17,14 +17,14 @@ const CONFIG = {
   // ── Thông tin ngân hàng ──────────────────────────────────
   bankName:       'Vietcombank',
   bankCode:       'VCB',          // Mã ngân hàng cho VietQR
-  accountNumber:  '0111000560086',   // ← THAY SỐ TÀI KHOẢN THẬT
-  accountName:    'LE HOANG HAI', // ← THAY TÊN CHỦ TÀI KHOẢN
+  accountNumber:  '1234567890',   // ← THAY SỐ TÀI KHOẢN THẬT
+  accountName:    'NGUYEN VAN A', // ← THAY TÊN CHỦ TÀI KHOẢN
   amount:         79000,
   // ── EmailJS (đăng ký tại emailjs.com) ────────────────────
   emailjs: {
-    serviceId:  'service_8oosfox',   // ← THAY
-    templateId: 'template_bs9crec',  // ← THAY
-    publicKey:  'fTELs1_t0_1i1zoAx',   // ← THAY
+    serviceId:  'YOUR_SERVICE_ID',   // ← THAY
+    templateId: 'YOUR_TEMPLATE_ID',  // ← THAY
+    publicKey:  'YOUR_PUBLIC_KEY',   // ← THAY
   },
   // ── Link download ebook ──────────────────────────────────
   // ebookUrl KHÔNG dùng trực tiếp trên trang.
@@ -1202,20 +1202,6 @@ function goToStep(n){
 
 /* ── Step 1 → 2 ── */
 function goToPayment(){
-  // Đăng ký đơn hàng lên server khi khách bấm thanh toán
-function registerOrder() {
-  // Thay domain sau khi deploy Netlify xong
-  var url = 'https://TÊN-SITE.netlify.app/.netlify/functions/payment-webhook?action=register';
-  fetch(url, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      orderId:       currentOrderId,
-      customerName:  currentCustomer.name,
-      customerEmail: currentCustomer.email,
-    }),
-  }).catch(function(e) { console.warn('registerOrder lỗi:', e); });
-}
   if(!validateAll())return;
 
   // TEST MODE: skip payment
@@ -1266,62 +1252,6 @@ function registerOrder() {
   qrContainer.appendChild(img);
 
   startPayTimer();
-  registerOrder();   
-  
-```
-
-→ **Commit changes**
-
----
-
-## BƯỚC 3 — Deploy lên Netlify
-
-1. Mở **netlify.com** → Đăng nhập bằng GitHub
-2. **Add new site → Import an existing project → GitHub**
-3. Chọn repo **du-an-28.3**
-4. Phần Build settings: **để trống tất cả**
-5. Nhấn **Deploy site**
-6. Chờ 1-2 phút → Site live với URL kiểu: `abc123.netlify.app`
-7. **Site settings → General → Change site name** → Đổi thành tên dễ nhớ, ví dụ: `lamchuclaude`
-
-**Sau bước này quay lại sửa index.html**, thay `TÊN-SITE` thành `lamchuclaude`.
-
----
-
-## BƯỚC 4 — Kết nối ngân hàng vào SePay
-
-1. SePay Dashboard → **Tài khoản ngân hàng → Thêm tài khoản**
-2. Chọn **Vietcombank**
-3. Điền số TK + tên chủ TK
-4. Làm theo hướng dẫn kết nối của SePay
-
-> ⚠️ Cần **bật SMS biến động số dư** tại Vietcombank trước (phí ~11,000đ/tháng). Đăng ký tại quầy hoặc VCB Digibank app.
-
----
-
-## BƯỚC 5 — Điền webhook URL vào SePay
-
-1. SePay Dashboard → **Cài đặt → Webhook**
-2. **Thêm webhook mới**
-3. Điền URL:
-```
-https://lamchuclaude.netlify.app/.netlify/functions/payment-webhook
-```
-4. Method: **POST** · Content-Type: **application/json**
-5. Nhấn **Lưu → Gửi thử (Send Test)**
-6. Vào **Netlify Dashboard → Functions → payment-webhook → Logs** → Thấy log từ SePay → ✅ Kết nối thành công
-
----
-
-## BƯỚC 6 — Test thật
-
-Chuyển khoản **1,000đ** vào TK Vietcombank với nội dung là mã ORDER thật (lấy từ Sales Page).
-
-**Kiểm tra Netlify Logs** — kết quả đúng sẽ thấy:
-```
-🔔 SePay webhook nhận được: {...}
-✅ Khớp đơn hàng: ORDER-xxx
-📧 Email gửi → khach@gmail.com
   goToStep(2);
 }
 
