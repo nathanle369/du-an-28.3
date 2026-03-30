@@ -20,13 +20,13 @@ netlify/functions/payment-webhook.js
 
 // ── THAY 4 GIÁ TRỊ NÀY ──────────────────────────────────────
 const CONFIG = {
-  accountNumber: '1234567890',        // ← Số TK Vietcombank của bạn
+  accountNumber: '0111000560086',        // ← Số TK Vietcombank của bạn
   minAmount:     79000,
   ebookUrl:      'https://drive.google.com/uc?export=download&id=1A-txjLodkaNkgMZtkpH94v9FEMsmzHM7',
   emailjs: {
-    serviceId:  'service_xxxxxxx',    // ← Service ID EmailJS
-    templateId: 'template_xxxxxxx',   // ← Template ID EmailJS
-    publicKey:  'aBcDeFgHiJkLmNoP',   // ← Public Key EmailJS
+    serviceId:  'service_8oosfox',    // ← Service ID EmailJS
+    templateId: 'template_bs9crec',   // ← Template ID EmailJS
+    publicKey:  'fTELs1_t0_1i1zoAx',   // ← Public Key EmailJS
   },
 };
 // ─────────────────────────────────────────────────────────────
