@@ -1096,13 +1096,9 @@ function formatCountdown(ms){
 function tickCountdowns(){
   var rem=promoEnd-Date.now();
   var t=formatCountdown(rem);
-  // topbar
   setText('tb-h',t.h); setText('tb-m',t.m); setText('tb-s',t.s);
-  // hero
   setText('hcd-h',t.h); setText('hcd-m',t.m); setText('hcd-s',t.s);
-  // pricing
   setText('pc-h',t.h); setText('pc-m',t.m); setText('pc-s',t.s);
-  // final
   setText('final-countdown',t.str);
 }
 setInterval(tickCountdowns,1000);
@@ -1110,7 +1106,6 @@ tickCountdowns();
 
 function setText(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
 
-/* ── Payment timer (15 min) ── */
 var payTimerInterval=null;
 
 function startPayTimer(){
@@ -1167,14 +1162,10 @@ function validateField(field){
 
 function validateAll(){
   var n=validateField('name'),e=validateField('email'),p=validateField('phone');
-  // force show errors
   ['name','email','phone'].forEach(function(f){validateField(f);});
   return n&&e&&p;
 }
 
-/* ============================================================
-   ORDER ID
-   ============================================================ */
 var currentOrderId='';
 var currentCustomer={};
 
@@ -1183,30 +1174,48 @@ function generateOrderId(){
   return 'ORDER-'+Date.now()+'-'+rand;
 }
 
-/* ============================================================
-   STEP NAVIGATION
-   ============================================================ */
 function goToStep(n){
   document.querySelectorAll('.step-panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById('panel-'+n).classList.add('active');
-  // update indicators
   for(var i=1;i<=3;i++){
     var ind=document.getElementById('step-indicator-'+i);
     ind.classList.remove('active','done');
     if(i<n)ind.classList.add('done');
     else if(i===n)ind.classList.add('active');
   }
-  var titles=['Đặt mua ebook','Thanh toán','Nhận ebook'];
+  var titles=['\u0110\u1eb7t mua ebook','Thanh to\u00e1n','Nh\u1eadn ebook'];
   setText('modalTitle',titles[n-1]);
 }
 
-/* ── Step 1 → 2 ── */
+/* ============================================================
+   [FIX] registerOrder() — HÀM RIÊNG BIỆT, không lồng trong goToPayment
+   ============================================================ */
+function registerOrder(){
+  var url='https://TEN-SITE.netlify.app/.netlify/functions/payment-webhook?action=register';
+  fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      orderId:currentOrderId,
+      customerName:currentCustomer.name,
+      customerEmail:currentCustomer.email,
+    }),
+  }).then(function(){
+    console.log('Don hang da luu:',currentOrderId);
+  }).catch(function(e){
+    console.warn('registerOrder loi:',e);
+  });
+}
+
 function goToPayment(){
   if(!validateAll())return;
 
-  // TEST MODE: skip payment
   if(CONFIG.testMode){
-    currentCustomer={name:document.getElementById('inp-name').value.trim(),email:document.getElementById('inp-email').value.trim(),phone:document.getElementById('inp-phone').value.trim()};
+    currentCustomer={
+      name:document.getElementById('inp-name').value.trim(),
+      email:document.getElementById('inp-email').value.trim(),
+      phone:document.getElementById('inp-phone').value.trim()
+    };
     currentOrderId=generateOrderId();
     goToSuccess();
     return;
@@ -1219,7 +1228,6 @@ function goToPayment(){
   };
   currentOrderId=generateOrderId();
 
-  // populate QR info
   setText('orderIdDisplay',currentOrderId);
   setText('disp-bank',CONFIG.bankName);
   setText('disp-account',CONFIG.accountNumber);
@@ -1227,14 +1235,11 @@ function goToPayment(){
   setText('disp-content',currentOrderId);
   setText('disp-email-confirm',currentCustomer.email);
 
-  // Generate VietQR URL
   var qrData='https://img.vietqr.io/image/'+CONFIG.bankCode+'-'+CONFIG.accountNumber+'-compact2.png?amount='+CONFIG.amount+'&addInfo='+encodeURIComponent(currentOrderId)+'&accountName='+encodeURIComponent(CONFIG.accountName);
 
-  // Clear + generate QR
   var qrContainer=document.getElementById('qrcode-container');
   qrContainer.innerHTML='';
 
-  // Use VietQR image (most reliable for banking)
   var img=document.createElement('img');
   img.src=qrData;
   img.style.width='200px';
@@ -1242,7 +1247,6 @@ function goToPayment(){
   img.style.borderRadius='8px';
   img.alt='VietQR Code';
   img.onerror=function(){
-    // Fallback: use qrcode.js with bank transfer string
     qrContainer.innerHTML='';
     new QRCode(qrContainer,{
       text:'BANK:'+CONFIG.bankCode+'\nACCOUNT:'+CONFIG.accountNumber+'\nAMOUNT:'+CONFIG.amount+'\nCONTENT:'+currentOrderId,
@@ -1252,27 +1256,24 @@ function goToPayment(){
   qrContainer.appendChild(img);
 
   startPayTimer();
+  registerOrder();
   goToStep(2);
 }
 
-/* ── Step 2 → 3 ── */
 function confirmPayment(){
-  // In production: verify via webhook. Here we trust user + send email.
   var btn=document.querySelector('#panel-2 .btn-gold:first-of-type');
   if(btn){
     btn.disabled=true;
-    btn.innerHTML='<div class="spinner"></div>&nbsp;Đang xử lý...';
+    btn.innerHTML='<div class="spinner"></div>&nbsp;\u0110ang x\u1eed l\u00fd...';
   }
   clearInterval(payTimerInterval);
 
-  // Save to localStorage
   localStorage.setItem('claude_ebook_purchased',JSON.stringify({
     orderId:currentOrderId,
     customer:currentCustomer,
     ts:Date.now()
   }));
 
-  // Send email via EmailJS
   sendConfirmationEmail(function(){goToSuccess();});
 }
 
@@ -1285,7 +1286,6 @@ function goToSuccess(){
   goToStep(3);
 }
 
-/* ── Manual form toggle ── */
 function toggleManualForm(){
   var f=document.getElementById('manualForm');
   f.classList.toggle('show');
@@ -1301,48 +1301,36 @@ function sendConfirmationEmail(callback){
     to_email:currentCustomer.email,
     order_id:currentOrderId,
     download_url:CONFIG.ebookUrl,
-    amount:'79,000đ'
+    amount:'79,000\u0111'
   }).then(function(){callback();},function(err){
     console.warn('EmailJS error:',err);
-    callback(); // Still proceed
+    callback();
   });
 }
 
-/* ============================================================
-   DOWNLOAD
-   ============================================================ */
-/* downloadEbook() đã bị vô hiệu — ebook chỉ giao qua email */
 function downloadEbook(){
-  alert('Ebook đã được gửi qua email của bạn. Vui lòng kiểm tra hộp thư.');
+  alert('Ebook \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1eedi qua email. Vui l\u00f2ng ki\u1ec3m tra h\u1ed9p th\u01b0.');
 }
 
-/* ============================================================
-   USECASE A — EMAIL GATE (Lead capture)
-   ============================================================ */
-/* Call openEmailGate() anywhere to show free lead capture */
 function openEmailGate(){
   if(localStorage.getItem('claude_ebook_email_gate')){
-    alert('Bạn đã đăng ký. Ebook đã được gửi vào email trước đó của bạn.');
+    alert('B\u1ea1n \u0111\u00e3 \u0111\u0103ng k\u00fd. Ebook \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1eedi v\u00e0o email tr\u01b0\u1edbc \u0111\u00f3.');
     return;
   }
-  var name=prompt('Nhập tên của bạn:','');
-  var email=prompt('Nhập email để nhận chapter miễn phí:','');
+  var name=prompt('Nh\u1eadp t\u00ean c\u1ee7a b\u1ea1n:','');
+  var email=prompt('Nh\u1eadp email \u0111\u1ec3 nh\u1eadn chapter mi\u1ec5n ph\u00ed:','');
   if(!name||!email)return;
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Email không hợp lệ');return;}
-
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Email kh\u00f4ng h\u1ee3p l\u1ec7');return;}
   if(typeof emailjs!=='undefined'){
     emailjs.send(CONFIG.emailjs.serviceId,CONFIG.emailjs.templateId,{
       to_name:name,to_email:email,
-      order_id:'FREECHAPTER',download_url:'(xem email)',amount:'Miễn phí'
+      order_id:'FREECHAPTER',download_url:'(xem email)',amount:'Mi\u1ec5n ph\u00ed'
     });
   }
   localStorage.setItem('claude_ebook_email_gate','1');
-  alert('✅ Đã gửi! Kiểm tra email '+email+' trong vài phút.');
+  alert('\u2705 \u0110\u00e3 g\u1eedi! Ki\u1ec3m tra email '+email+' trong v\u00e0i ph\u00fat.');
 }
 
-/* ============================================================
-   RESTORE STATE (nếu đã mua)
-   ============================================================ */
 (function(){
   var p=localStorage.getItem('claude_ebook_purchased');
   if(p){
@@ -1354,9 +1342,6 @@ function openEmailGate(){
   }
 })();
 
-/* ============================================================
-   ACCORDION
-   ============================================================ */
 function toggleAcc(header){
   var item=header.parentElement;
   var isOpen=item.classList.contains('open');
@@ -1364,32 +1349,22 @@ function toggleAcc(header){
   if(!isOpen)item.classList.add('open');
 }
 
-/* ============================================================
-   FAQ
-   ============================================================ */
 function toggleFaq(q){
   var item=q.parentElement;
   item.classList.toggle('open');
 }
 
-/* ============================================================
-   SCROLL ANIMATIONS
-   ============================================================ */
 var observer=new IntersectionObserver(function(entries){
   entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});
 },{threshold:0.12});
 document.querySelectorAll('.fade-up').forEach(function(el){observer.observe(el);});
 
-/* ============================================================
-   TEST MODE
-   ============================================================ */
 if(CONFIG.testMode){
   document.getElementById('testBanner').style.display='block';
   document.body.style.paddingTop='32px';
-  console.log('%c🧪 TEST MODE ACTIVE','background:#dc2626;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold');
+  console.log('%cTEST MODE ACTIVE','background:#dc2626;color:#fff;padding:4px 8px');
   console.log('CONFIG:',CONFIG);
 }
-</script>
 
 <!--
 =================================================================
